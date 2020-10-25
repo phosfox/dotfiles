@@ -1,7 +1,7 @@
 #This script sets up dotfiles on a new environment
 git clone --bare https://github.com/phosfox/dotfiles.git $HOME/.cfg
 function config {
-   /usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME $@
+   git --git-dir=$HOME/.cfg/ --work-tree=$HOME $@
 }
 mkdir -p .config-backup
 config checkout
