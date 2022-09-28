@@ -54,7 +54,7 @@
   :diminish
   :bind (("C-s" . swiper)
          :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
+         ("TAB" . ivy-alt-done) 
          ("C-l" . ivy-alt-done)
          ("C-j" . ivy-next-line)
          ("C-k" . ivy-previous-line)
@@ -110,7 +110,7 @@
  '(custom-safe-themes
    '("631c52620e2953e744f2b56d102eae503017047fb43d65ce028e88ef5846ea3b" default))
  '(package-selected-packages
-   '(key-chord hydra evil-collection evil general all-the-icons helpful which-key use-package rainbow-delimiters ivy-rich doom-themes doom-modeline counsel))
+   '(evil-magit magit key-chord hydra evil-collection evil general all-the-icons helpful which-key use-package rainbow-delimiters ivy-rich doom-themes doom-modeline counsel))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -129,48 +129,13 @@
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
+
 (use-package general
   :config
   (general-create-definer rune/leader-keys
     :keymaps '(normal insert visual emacs)
     :prefix "SPC"
-    :global-prefix "C-SPC")
-
-  (rune/leader-keys
-    "" nil
-    "SPC" '(counsel-M-x :which-key "Counsel-M-x")
-    "." '(counsel-find-file :which-key "Find file")
-    "," '(switch-to-previous-buffer :which-key "Switch to previous buffer")
-    "<" '(counsel-switch-buffer :which-key "Show all buffers")
-    "x" '(switch-to-scratch-buffer :which-key "Switch to *scratch* buffer")
-    "d" '(dired :which-key "Open dired")
-    "g" '(magit :which-key "Open magit")
-    "t" '(neotree-toggle :which-key "Toggle neotree")
-    ;"p" '(:keymap projectile-command-map :which-key "Projectile commands")
-    "c" '(:ignore t :which-key "Code commands")
-    "s" '(swiper :which-key "Swiper")
-    ;"c l" '(:keymap lsp-command-map :package lsp-mode :which-key "LSP commands")
-    "c d" '(lsp-find-definition :which-key "LSP find definition")
-    "c r" '(lsp-find-references :which-key "LSP find references")
-    "c f" '(yafolding-hide-element :which-key "Fold block")
-    "c u" '(yafolding-show-element :which-key "Unfold block")
-    "p a" '(projectile-add-known-project :which-key "Add new project")
-    "b" '(:ignore t :which-key "Buffers")
-    "b k" '(kill-current-buffer :which-key "Kill buffer")
-    "b r" '(revert-buffer :which-key "Revert buffer")
-    "w" '(:ignore t :which-key "Window management")
-    "w v" '(split-window-right :which-key "Split window vertically")
-    "w s" '(split-window-below :which-key "Split window horizontally")
-    "w h" '(evil-window-left :which-key "Move to left window")
-    "w j" '(evil-window-down :which-key "Move to lower window")
-    "w k" '(evil-window-up :which-key "Move to upper window")
-    "w l" '(evil-window-right :which-key "Move to right window")
-    "w q" '(evil-window-delete :which-key "Delete a window")
-    "w o" '(delete-other-windows :which-key "Delete all other windows")
-    "f" '(:ignore t :which-key "File operations")
-    ;"f h" '(open-emacs-home :which-key "Open emacs.d folder")
-    ;"f c" '(open-emacs-settings :which-key "Open emacs settings.org")
-    "q" '(save-buffers-kill-terminal :which-key "Quit Emacs")))
+    :global-prefix "C-SPC"))
 
 (use-package evil
   :init
@@ -209,11 +174,64 @@
   ("k" text-scale-decrease "out")
   ("f" nil "finished" :exit t))
 
-(rune/leader-keys
-  "ts" '(hydra-text-scale/body :which-key "scale text"))
-
 (cond
  ((string-equal system-type "darwin")
   (setq mac-command-modifier 'meta
 	mac-option-modifier 'none
 	default-input-method "MacOSX")))
+
+(use-package projectile
+  :diminish projectile-mode
+  :config (projectile-mode)
+  :custom ((projectile-completion-system 'ivy))
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
+  :init
+  ;; NOTE: Set this to the folder where you keep your Git repos!
+  (when (file-directory-p "~/code")
+    (setq projectile-project-search-path '("~/code")))
+  (setq projectile-switch-project-action #'projectile-dired))
+
+(use-package counsel-projectile
+  :config (counsel-projectile-mode))
+
+(use-package magit
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+(rune/leader-keys
+    "" nil
+    "SPC" '(counsel-M-x :which-key "Counsel-M-x")
+    "." '(counsel-find-file :which-key "Find file")
+    "*" '(counsel-projectile-rg  :which-key "Find in Project")
+    "," '(switch-to-previous-buffer :which-key "Switch to previous buffer")
+    "<" '(counsel-switch-buffer :which-key "Show all buffers")
+    "x" '(switch-to-scratch-buffer :which-key "Switch to *scratch* buffer")
+    "d" '(dired :which-key "Open dired")
+    "g" '(magit :which-key "Open magit")
+    "t" '(neotree-toggle :which-key "Toggle neotree")
+    "p" '(:keymap projectile-command-map :which-key "Projectile commands")
+    "c" '(:ignore t :which-key "Code commands")
+    "s" '(swiper :which-key "Swiper")
+    ;"c l" '(:keymap lsp-command-map :package lsp-mode :which-key "LSP commands")
+    "c d" '(lsp-find-definition :which-key "LSP find definition")
+    "c r" '(lsp-find-references :which-key "LSP find references")
+    "c f" '(yafolding-hide-element :which-key "Fold block")
+    "c u" '(yafolding-show-element :which-key "Unfold block")
+    "p a" '(projectile-add-known-project :which-key "Add new project")
+    "b" '(:ignore t :which-key "Buffers")
+    "b k" '(kill-current-buffer :which-key "Kill buffer")
+    "b r" '(revert-buffer :which-key "Revert buffer")
+    "w" '(:ignore t :which-key "Window management")
+    "w v" '(split-window-right :which-key "Split window vertically")
+    "w s" '(split-window-below :which-key "Split window horizontally")
+    "w h" '(evil-window-left :which-key "Move to left window")
+    "w j" '(evil-window-down :which-key "Move to lower window")
+    "w k" '(evil-window-up :which-key "Move to upper window")
+    "w l" '(evil-window-right :which-key "Move to right window")
+    "w q" '(evil-window-delete :which-key "Delete a window")
+    "w o" '(delete-other-windows :which-key "Delete all other windows")
+    "f" '(:ignore t :which-key "File operations")
+    ;"f h" '(open-emacs-home :which-key "Open emacs.d folder")
+    ;"f c" '(open-emacs-settings :which-key "Open emacs settings.org")
+    "q" '(save-buffers-kill-terminal :which-key "Quit Emacs"))
