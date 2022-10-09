@@ -1,6 +1,6 @@
 
 (setq inhibit-startup-message t)
-
+(add-to-list 'default-frame-alist '(ns-appearance . dark))
 (scroll-bar-mode -1)        ; Disable visible scrollbar
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
@@ -10,14 +10,26 @@
 
 ;; Set up the visible bell
 (setq visible-bell nil)
-
+;; Do not ring bell
+(setq ring-bell-function 'ignore)
 (set-face-attribute 'default nil :font "Fira Code" :height 150)
 
-(load-theme 'wombat)
-
+;; Highlight current line
+(global-hl-line-mode -1)
 
 ;; Make ESC quit prompts
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+
+;; Do not create backup files
+(setq-default backup-inhibited t)
+(setq create-lockfiles nil)
+
+(toggle-frame-maximized)
+
+(setq modus-themes-bold-constructs t)
+(setq modus-themes-paren-match '(bold intense))
+(setq modus-themes-region '(bg-only))
+(load-theme 'modus-operandi t)
 
 ;; Initialize package sources
 (require 'package)
@@ -78,8 +90,8 @@
 
 (use-package all-the-icons)
 
-(use-package doom-themes
-  :init (load-theme 'doom-ayu-dark t))
+;(use-package doom-themes
+;  :init (load-theme 'doom-ayu-dark t))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -110,7 +122,7 @@
  '(custom-safe-themes
    '("631c52620e2953e744f2b56d102eae503017047fb43d65ce028e88ef5846ea3b" default))
  '(package-selected-packages
-   '(evil-magit magit key-chord hydra evil-collection evil general all-the-icons helpful which-key use-package rainbow-delimiters ivy-rich doom-themes doom-modeline counsel))
+   '(typescript-mode lsp-mode evil-magit magit key-chord hydra evil-collection evil general all-the-icons helpful which-key use-package rainbow-delimiters ivy-rich doom-themes doom-modeline counsel))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -199,6 +211,22 @@
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
+;;LSP
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :config
+  (lsp-enable-which-key-integration t))
+
+;;Typescript
+(use-package typescript-mode
+  :mode "\\.ts\\'"
+  :hook (typescript-mode . lsp-deferred)
+  :config
+  (setq typescript-indent-level 2))
+
+;;Keybinds
 (rune/leader-keys
     "" nil
     "SPC" '(counsel-M-x :which-key "Counsel-M-x")
@@ -213,7 +241,7 @@
     "p" '(:keymap projectile-command-map :which-key "Projectile commands")
     "c" '(:ignore t :which-key "Code commands")
     "s" '(swiper :which-key "Swiper")
-    ;"c l" '(:keymap lsp-command-map :package lsp-mode :which-key "LSP commands")
+    "c l" '(:keymap lsp-command-map :package lsp-mode :which-key "LSP commands")
     "c d" '(lsp-find-definition :which-key "LSP find definition")
     "c r" '(lsp-find-references :which-key "LSP find references")
     "c f" '(yafolding-hide-element :which-key "Fold block")
