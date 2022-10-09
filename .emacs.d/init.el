@@ -122,7 +122,7 @@
  '(custom-safe-themes
    '("631c52620e2953e744f2b56d102eae503017047fb43d65ce028e88ef5846ea3b" default))
  '(package-selected-packages
-   '(company-box company evil-nerd-commenter lsp-ui typescript-mode lsp-mode evil-magit magit key-chord hydra evil-collection evil general all-the-icons helpful which-key use-package rainbow-delimiters ivy-rich doom-themes doom-modeline counsel))
+   '(amx lsp-ivy lsp-treemacs company-box company evil-nerd-commenter lsp-ui typescript-mode lsp-mode evil-magit magit key-chord hydra evil-collection evil general all-the-icons helpful which-key use-package rainbow-delimiters ivy-rich doom-themes doom-modeline counsel))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -210,6 +210,11 @@
 (use-package counsel-projectile
   :config (counsel-projectile-mode))
 
+(use-package amx
+  :ensure t
+  :after ivy
+  :config (amx-mode 1))
+
 (use-package magit
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
@@ -239,7 +244,7 @@
 
 ;;Typescript
 (use-package typescript-mode
-  :mode "\\.tsx?$\\'"
+  :mode "\\.tsx?$"
   :hook (typescript-mode . lsp-deferred)
   :config
   (setq typescript-indent-level 2))
@@ -259,13 +264,24 @@
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
+;;Custom Commands
+(defun switch-to-previous-buffer ()
+  "Switch to previously open buffer. Repeated invocations toggle between the two most recently open buffers."
+  (interactive)
+  (switch-to-buffer (other-buffer (current-buffer) 1)))
+
 ;;Keybinds
+(general-define-key
+  :keymaps '(normal insert emacs)
+  "M-p" 'projectile-find-file)
+
 (rune/leader-keys
     "" nil
     "SPC" '(counsel-M-x :which-key "Counsel-M-x")
     "." '(counsel-find-file :which-key "Find file")
     "*" '(counsel-projectile-rg  :which-key "Find in Project")
     "," '(switch-to-previous-buffer :which-key "Switch to previous buffer")
+    "TAB" '(switch-to-previous-buffer :which-key "Switch to previous buffer")
     "<" '(counsel-switch-buffer :which-key "Show all buffers")
     "x" '(switch-to-scratch-buffer :which-key "Switch to *scratch* buffer")
     "d" '(dired :which-key "Open dired")
@@ -293,6 +309,8 @@
     "w q" '(evil-window-delete :which-key "Delete a window")
     "w o" '(delete-other-windows :which-key "Delete all other windows")
     "f" '(:ignore t :which-key "File operations")
+    "f s" '(save-buffer :which-key "Save Buffer")
     ;"f h" '(open-emacs-home :which-key "Open emacs.d folder")
     ;"f c" '(open-emacs-settings :which-key "Open emacs settings.org")
-    "q" '(save-buffers-kill-terminal :which-key "Quit Emacs"))
+    "q" '(:ignore t :whick-key "Quit Emacs")
+    "q q" '(save-buffers-kill-terminal :which-key "Quit Emacs"))
