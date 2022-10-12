@@ -12,7 +12,7 @@
 (setq visible-bell nil)
 ;; Do not ring bell
 (setq ring-bell-function 'ignore)
-(set-face-attribute 'default nil :font "Fira Code" :height 150)
+(set-face-attribute 'default nil :font "Fira Code" :height 160)
 
 ;; Highlight current line
 (global-hl-line-mode -1)
@@ -86,12 +86,12 @@
 (use-package doom-modeline
   :ensure t
   :init (doom-modeline-mode 1)
-  :custom ((doom-modeline-height 10)))
+  :custom ((doom-modeline-height 8)))
 
 (use-package all-the-icons)
 
-;(use-package doom-themes
-;  :init (load-theme 'doom-ayu-dark t))
+;; (use-package doom-themes
+;;  :init (load-theme 'doom-ayu-dark t))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -120,9 +120,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("631c52620e2953e744f2b56d102eae503017047fb43d65ce028e88ef5846ea3b" default))
+   '("aec7b55f2a13307a55517fdf08438863d694550565dee23181d2ebd973ebd6b8" "a44e2d1636a0114c5e407a748841f6723ed442dc3a0ed086542dc71b92a87aee" "631c52620e2953e744f2b56d102eae503017047fb43d65ce028e88ef5846ea3b" default))
  '(package-selected-packages
-   '(amx lsp-ivy lsp-treemacs company-box company evil-nerd-commenter lsp-ui typescript-mode lsp-mode evil-magit magit key-chord hydra evil-collection evil general all-the-icons helpful which-key use-package rainbow-delimiters ivy-rich doom-themes doom-modeline counsel))
+   '(yafolding web-mode php-mode yaml-mode amx lsp-ivy lsp-treemacs company-box company evil-nerd-commenter lsp-ui typescript-mode lsp-mode evil-magit magit key-chord hydra evil-collection evil general all-the-icons helpful which-key use-package rainbow-delimiters ivy-rich doom-themes doom-modeline counsel))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -203,8 +203,8 @@
   ("C-c p" . projectile-command-map)
   :init
   ;; NOTE: Set this to the folder where you keep your Git repos!
-  (when (file-directory-p "~/code")
-    (setq projectile-project-search-path '("~/code")))
+  (when (file-directory-p "~/")
+    (setq projectile-project-search-path '("~/code" ("~/Projects" . 2))))
   (setq projectile-switch-project-action #'projectile-dired))
 
 (use-package counsel-projectile
@@ -222,6 +222,10 @@
 (defun efs/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (lsp-headerline-breadcrumb-mode))
+
+(use-package yafolding
+  :ensure t
+  :hook (prog-mode . yafolding-mode))
 
 ;;LSP
 (use-package lsp-mode
@@ -244,10 +248,27 @@
 
 ;;Typescript
 (use-package typescript-mode
-  :mode "\\.tsx?$"
+  :mode "\\.[jt]sx?$"
   :hook (typescript-mode . lsp-deferred)
   :config
   (setq typescript-indent-level 2))
+
+
+(use-package prettier
+  :after typescript-mode
+  :hook (typescript-mode . prettier-mode))
+
+(use-package yaml-mode
+  :mode "\\.ya?ml$"
+  :hook (yaml-mode . lsp-deferred))
+
+(use-package php-mode
+  :mode "\\.php$"
+  :hook (php-mode . lsp-deferred))
+
+(use-package web-mode
+  :mode "\\.html$"
+  :hook (web-mode . lsp-deferred))
 
 ;;Company
 (use-package company
@@ -270,6 +291,9 @@
   (interactive)
   (switch-to-buffer (other-buffer (current-buffer) 1)))
 
+(defun switch-to-scratch-buffer ()
+  (interactive)
+  (switch-to-buffer "*scratch*"))
 ;;Keybinds
 (general-define-key
   :keymaps '(normal insert emacs)
@@ -286,7 +310,7 @@
     "x" '(switch-to-scratch-buffer :which-key "Switch to *scratch* buffer")
     "d" '(dired :which-key "Open dired")
     "g" '(magit :which-key "Open magit")
-    "t" '(neotree-toggle :which-key "Toggle neotree")
+    ;; "t" '(neotree-toggle :which-key "Toggle neotree")
     "p" '(:keymap projectile-command-map :which-key "Projectile commands")
     "c" '(:ignore t :which-key "Code commands")
     "s" '(swiper :which-key "Swiper")
@@ -310,6 +334,7 @@
     "w o" '(delete-other-windows :which-key "Delete all other windows")
     "f" '(:ignore t :which-key "File operations")
     "f s" '(save-buffer :which-key "Save Buffer")
+    "f t" '(treemacs :which-key "Treemacs")
     ;"f h" '(open-emacs-home :which-key "Open emacs.d folder")
     ;"f c" '(open-emacs-settings :which-key "Open emacs settings.org")
     "q" '(:ignore t :whick-key "Quit Emacs")
