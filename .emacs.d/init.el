@@ -1,12 +1,15 @@
 
 (setq inhibit-startup-message t)
-(add-to-list 'default-frame-alist '(ns-appearance . dark))
+;;(add-to-list 'default-frame-alist '(ns-appearance . dark))
 (scroll-bar-mode -1)        ; Disable visible scrollbar
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
 (set-fringe-mode 10)        ; Give some breathing room
-
+;; auto revert/refresh file when change detected
+(global-auto-revert-mode 1)
 (menu-bar-mode -1)            ; Disable the menu bar
+;;Disable automatically created backup files
+(setq make-backup-files nil)
 
 ;; Set up the visible bell
 (setq visible-bell nil)
@@ -26,10 +29,11 @@
 
 (toggle-frame-maximized)
 
-(setq modus-themes-bold-constructs t)
-(setq modus-themes-paren-match '(bold intense))
-(setq modus-themes-region '(bg-only))
-(load-theme 'modus-operandi t)
+
+;; (setq modus-themes-bold-constructs t)
+;; (setq modus-themes-paren-match '(bold intense))
+;; (setq modus-themes-region '(bg-only))
+;;(load-theme 'modus-operandi t)
 
 ;; Initialize package sources
 (require 'package)
@@ -66,7 +70,7 @@
   :diminish
   :bind (("C-s" . swiper)
          :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done) 
+         ("TAB" . ivy-alt-done)
          ("C-l" . ivy-alt-done)
          ("C-j" . ivy-next-line)
          ("C-k" . ivy-previous-line)
@@ -82,6 +86,10 @@
 
 (setq ivy-use-virtual-buffers t)
 ;(setq ivy-count-format "(%d/%d)")
+
+(use-package ef-themes
+  :ensure t)
+(load-theme 'ef-light :no-confirm)
 
 (use-package doom-modeline
   :ensure t
@@ -122,7 +130,7 @@
  '(custom-safe-themes
    '("aec7b55f2a13307a55517fdf08438863d694550565dee23181d2ebd973ebd6b8" "a44e2d1636a0114c5e407a748841f6723ed442dc3a0ed086542dc71b92a87aee" "631c52620e2953e744f2b56d102eae503017047fb43d65ce028e88ef5846ea3b" default))
  '(package-selected-packages
-   '(yafolding web-mode php-mode yaml-mode amx lsp-ivy lsp-treemacs company-box company evil-nerd-commenter lsp-ui typescript-mode lsp-mode evil-magit magit key-chord hydra evil-collection evil general all-the-icons helpful which-key use-package rainbow-delimiters ivy-rich doom-themes doom-modeline counsel))
+   '(dap-mode ef-themes flycheck yafolding web-mode php-mode yaml-mode amx lsp-ivy lsp-treemacs company-box company evil-nerd-commenter lsp-ui typescript-mode lsp-mode evil-magit magit key-chord hydra evil-collection evil general all-the-icons helpful which-key use-package rainbow-delimiters ivy-rich doom-themes doom-modeline counsel))
  '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -219,6 +227,11 @@
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
+(use-package avy
+  :ensure t
+  :config (avy-setup-default)
+  :bind ("M-j" . avy-goto-char-timer))
+
 (defun efs/lsp-mode-setup ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (lsp-headerline-breadcrumb-mode))
@@ -227,24 +240,35 @@
   :ensure t
   :hook (prog-mode . yafolding-mode))
 
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+
 ;;LSP
 (use-package lsp-mode
+  :ensure t
   :commands (lsp lsp-deferred)
-  :hook (lsp-mode . efs/lsp-mode-setup)
+  :hook ((lsp-mode . efs/lsp-mode-setup)
+	 (lsp-mode . lsp-enable-which-key-integration))
   :init
   (setq lsp-keymap-prefix "C-c l")
-  :config
-  (lsp-enable-which-key-integration t))
+  :config (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]vendor'"))
 
 (use-package lsp-ui
   :hook (lsp-mode . lsp-ui-mode)
+  :config (setq lsp-ui-sideline-enable t
+		lsp-ui-sideline-show-diagnostics t)
   :custom
   (lsp-ui-doc-position 'bottom))
 
 (use-package lsp-treemacs
-  :after lsp)
+  :after lsp
+  :commands lsp-treemacs-errors-list)
 
-(use-package lsp-ivy)
+(use-package lsp-ivy
+  :commands lsp-ivy-workspace-symbol)
+
+(use-package dap-mode)
 
 ;;Typescript
 (use-package typescript-mode
@@ -267,7 +291,7 @@
   :hook (php-mode . lsp-deferred))
 
 (use-package web-mode
-  :mode "\\.html$"
+  :mode "\\.\.html$"
   :hook (web-mode . lsp-deferred))
 
 ;;Company
